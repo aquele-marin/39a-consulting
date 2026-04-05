@@ -38,7 +38,7 @@ Abra os nodes e verifique se as credenciais estao selecionadas, evitando bugs na
 
 ## Carregar dados do .zip
 
-No workflow de extração do zip, clique em Execute workflow
+No workflow de extração do zip, clique em "Execute workflow"
 Basta executar o comando abaixo para executar o workflow com o zip dos dados
 
 **Substitua a URL pela que foi gerada ao importar o workflow**
@@ -49,6 +49,7 @@ curl -X POST http://localhost:5678/webhook-test/SUA_URL -F "data=@assets/dados.z
 
 ## Fazer a requisicao
 
+Dessa vez, no workflow de coleta e analise, clicamos em "Execute workflow" para ativar o teste na feature.
 Agora podemos apenas fazer a requisicao de GET para gerar o relatorio e coletar dados
 
 ```bash
