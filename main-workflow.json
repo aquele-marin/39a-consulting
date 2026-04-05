@@ -10,10 +10,10 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        -512,
-        -64
+        0,
+        0
       ],
-      "id": "672a3e0d-5b82-4bed-9cc5-eb1f1475ad3d",
+      "id": "95ea6e59-bdbc-4033-a368-6781c199e51b",
       "name": "Webhook",
       "webhookId": "e50e99c9-d682-4ad1-a1f5-9d2a3a3fe0f5"
     },
@@ -26,31 +26,31 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
       "position": [
-        496,
-        -64
+        1008,
+        0
       ],
-      "id": "97bdd940-500b-4595-95a2-a74c6577f66c",
+      "id": "11513644-4bac-43f0-844b-be05288265ad",
       "name": "Respond to Webhook"
     },
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "SELECT \n    c.name AS \"Nome do cliente\",\n    AVG(er.kwh_value) AS media_consumo\nFROM customers c\nJOIN contracts ct ON c.id = ct.customer_id\nJOIN energy_readings er ON ct.id = er.contract_id\nWHERE ct.is_active = TRUE\nGROUP BY c.id, c.name;",
+        "query": "SELECT \n    c.name AS \"Nome do cliente\",\n    AVG(er.kwh_value) AS media_consumo\nFROM customers c\nJOIN contracts ct ON c.id = ct.customer_id\nJOIN energy_readings er ON ct.id = er.contract_id\nWHERE ct.is_active = TRUE\nAND er.reading_timestamp >= CURRENT_DATE - INTERVAL '3 months'\nGROUP BY c.id, c.name;",
         "options": {}
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        -320,
-        -64
+        192,
+        0
       ],
-      "id": "1c94ca0a-3314-4759-b2a2-b19921ff64d6",
+      "id": "9d39c1a4-aac0-45dc-97cd-2fec0e5ca5dd",
       "name": "Execute a SQL query",
       "alwaysOutputData": true,
       "executeOnce": false,
       "credentials": {
         "postgres": {
-          "id": "JaIn9T0mUE25KXPZ",
+          "id": "6KuBRmFwh6DS4SRE",
           "name": "Postgres account"
         }
       }
@@ -80,29 +80,29 @@
       "type": "@n8n/n8n-nodes-langchain.openAi",
       "typeVersion": 2.1,
       "position": [
-        112,
-        -64
+        624,
+        0
       ],
-      "id": "3b048006-b400-4ea8-8339-60b7a4c6dda2",
+      "id": "0d5a006f-80e0-4f53-a732-b720b67c4f01",
       "name": "Message a model",
       "credentials": {
         "openAiApi": {
-          "id": "fiV9YYv1uoLNEJVf",
+          "id": "UM2TqcEjn1yVt5el",
           "name": "OpenAI account"
         }
       }
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\nif (items.length === 0) return [];\n\nlet totalConsumption = 0;\nfor (const item of items) {\n    totalConsumption += parseFloat(item.json.media_consumo);\n}\nconst globalAvg = totalConsumption / items.length;\nconst upperThreshold = globalAvg * 1.5; // 50% acima da média\nconst lowerThreshold = globalAvg * 0.5; // 50% abaixo da média\n\nconst processedData = items.map(item => {\n    const media = parseFloat(item.json.media_consumo);\n    let status = 'normal';\n    \n    if (media > upperThreshold || media < lowerThreshold) {\n        status = 'outlier';\n    }\n\n    return {\n        \"Nome do cliente\": item.json['Nome do cliente'],\n        \"Média de consumo\": Number(media.toFixed(4)),\n        \"Status\": status\n    };\n});\n\nreturn [{ json: { relatorio_dados: processedData } }];"
+        "jsCode": "const items = $input.all();\nif (items.length === 0) return [];\n\n// 1. Extrair e ordenar os valores de consumo do menor para o maior\nconst values = items\n    .map(item => parseFloat(item.json.media_consumo))\n    .sort((a, b) => a - b);\n\n// 2. Função auxiliar para calcular os percentis (interpolação linear)\nfunction getPercentile(data, percentile) {\n    const index = (percentile / 100) * (data.length - 1);\n    const lower = Math.floor(index);\n    const upper = Math.ceil(index);\n    const weight = index - lower;\n    \n    if (upper === lower) return data[lower];\n    return data[lower] * (1 - weight) + data[upper] * weight;\n}\n\n// 3. Calcular Q1 (25%), Q3 (75%) e o IQR\nconst q1 = getPercentile(values, 25);\nconst q3 = getPercentile(values, 75);\nconst iqr = q3 - q1;\n\n// 4. Definir os limites (Multiplier padrão estatístico é 1.5)\nconst lowerThreshold = q1 - (1.5 * iqr);\nconst upperThreshold = q3 + (1.5 * iqr);\n\n// 5. Classificar os dados originais com base nos novos limites\nconst processedData = items.map(item => {\n    const media = parseFloat(item.json.media_consumo);\n    let status = 'normal';\n    \n    if (media > upperThreshold || media < lowerThreshold) {\n        status = 'outlier';\n    }\n\n    return {\n        \"Nome do cliente\": item.json['Nome do cliente'],\n        \"Média de consumo\": Number(media.toFixed(4)),\n        \"Status\": status\n    };\n});\n\n// Opcional: Adicionando dados de debug no output para você conferir os cálculos\nreturn [{ \n    json: { \n        relatorio_dados: processedData,\n        debug_estatistico: {\n            q1: Number(q1.toFixed(4)),\n            q3: Number(q3.toFixed(4)),\n            iqr: Number(iqr.toFixed(4)),\n            limite_inferior: Number(lowerThreshold.toFixed(4)),\n            limite_superior: Number(upperThreshold.toFixed(4))\n        }\n    } \n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -128,
-        -64
+        384,
+        0
       ],
-      "id": "e4f29c1a-2357-408a-b068-51651f975e7a",
+      "id": "52200c5d-7ed7-4929-82d0-be10d72c18fc",
       "name": "Code",
       "alwaysOutputData": true
     }
@@ -159,11 +159,11 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "e70643b9-0b50-4ce7-bc0b-42cdaf76e8ba",
+  "versionId": "56bc8907-7556-4a7a-a9e2-33d18cc94dd3",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "ca34ab5c748c6607c7ca4a826b44c5bdc1c48e8c3b10987890a1944eafa8eedf"
+    "instanceId": "80650967803774c65a3f7fb265b3c237d19d2e88114a39ff1321bb8d631d858d"
   },
-  "id": "SXmB9oOE6QaTXGCp",
+  "id": "qHipl9CoGXc5eSrF",
   "tags": []
 }

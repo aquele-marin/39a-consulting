@@ -10,10 +10,10 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        0,
-        0
+        -432,
+        176
       ],
-      "id": "42f80757-4283-444a-afc7-5babb5c598ab",
+      "id": "10e2fc76-5de3-4156-8347-f617bff6a78e",
       "name": "Webhook",
       "webhookId": "9517cccb-1c58-4370-b532-345227826eca"
     },
@@ -22,43 +22,44 @@
       "type": "n8n-nodes-base.compression",
       "typeVersion": 1.1,
       "position": [
-        224,
-        0
+        -208,
+        176
       ],
-      "id": "e06eb5b0-c3a1-4a43-b59d-df04f3232a7e",
+      "id": "5cfa8221-23fe-4a7c-b2a4-7e64b6b58bb9",
       "name": "Decompression",
       "alwaysOutputData": false
     },
     {
       "parameters": {
+        "binaryPropertyName": "={{ $input.item.json }}",
         "options": {}
       },
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
       "position": [
-        656,
-        0
+        192,
+        16
       ],
-      "id": "e7483d17-6077-4596-9786-b01d51c4fbbe",
+      "id": "8eb53561-22b4-471c-b3b7-0dd0aa1efee6",
       "name": "Extract from File"
     },
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "INSERT INTO customers (id, name) \nVALUES ({{ $json.id }}, '{{ $json.name }}') \nOVERRIDING SYSTEM VALUE\nON CONFLICT (id) DO NOTHING;",
+        "query": "INSERT INTO customers (name) \nVALUES ('{{ $json.name }}');",
         "options": {}
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        864,
-        0
+        400,
+        16
       ],
-      "id": "0a6f1104-7ca1-41b0-9fdd-d5aa7be5dffa",
+      "id": "e84fa580-7532-4887-a667-0666e2baf278",
       "name": "Execute a SQL query",
       "credentials": {
         "postgres": {
-          "id": "JaIn9T0mUE25KXPZ",
+          "id": "6KuBRmFwh6DS4SRE",
           "name": "Postgres account"
         }
       }
@@ -70,57 +71,58 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        432,
-        0
+        0,
+        16
       ],
-      "id": "6213c7a0-8c24-4450-8b81-1d755e2e58b4",
+      "id": "48cbd3b9-9a61-4d4b-b8dd-c04e1fdbe010",
       "name": "Clientes extract",
       "alwaysOutputData": true
     },
     {
       "parameters": {
-        "jsCode": "// Procura o item que contém o arquivo clientes.csv\nconst contratosItem = $input.all().find(item => item.binary.data.fileName === 'contratos.csv');\nreturn [contratosItem];"
+        "jsCode": "// Procura o item que contém o arquivo clientes.csv\nconst items = Object.entries($input.first().binary)\nlet contratosItem = {}\n\nfor (const [_, value] of items) {\n  if (value.fileName === \"contratos.csv\") {\n    contratosItem = value\n    break;\n  }\n}\n\nreturn [contratosItem];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        432,
-        208
+        0,
+        176
       ],
-      "id": "e20835c8-57e1-4349-b225-7d1f023a9cc1",
+      "id": "371a9a34-da25-4c0f-b533-f30d945c8773",
       "name": "Contratos extract",
       "alwaysOutputData": true
     },
     {
       "parameters": {
+        "binaryPropertyName": "={{ $input.item.json }}",
         "options": {}
       },
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
       "position": [
-        672,
-        192
+        192,
+        176
       ],
-      "id": "12068cc3-149b-460f-b542-d04698f75121",
+      "id": "fb91228a-3c13-4103-8925-b799519685fe",
       "name": "Extract from File1"
     },
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "INSERT INTO contracts (id, customer_id, start_date, is_active) \nVALUES ({{ $json.id }}, {{ $json.customer_id }}, '{{ $json.start_date }}', {{ $json.is_active }}) \nOVERRIDING SYSTEM VALUE\nON CONFLICT (id) DO NOTHING;",
+        "query": "INSERT INTO contracts (customer_id, start_date, is_active) \nVALUES ({{ $json.customer_id }}, '{{ $json.start_date }}', {{ $json.is_active }});\n",
         "options": {}
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        880,
-        192
+        400,
+        176
       ],
-      "id": "ba53bc78-5616-44f5-ac8f-701ec68e2d41",
+      "id": "a6d6ba1c-5b82-4016-9e8e-cef7e3900213",
       "name": "Execute a SQL query1",
       "credentials": {
         "postgres": {
-          "id": "JaIn9T0mUE25KXPZ",
+          "id": "6KuBRmFwh6DS4SRE",
           "name": "Postgres account"
         }
       }
@@ -133,29 +135,29 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
       "position": [
-        656,
-        -176
+        192,
+        384
       ],
-      "id": "0a99df94-46fe-48dd-ad06-fc4b8e0873c8",
+      "id": "8aca0f0d-761d-445f-90fd-8c3d45ee132d",
       "name": "Extract from File2"
     },
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "INSERT INTO energy_readings (id, contract_id, reading_timestamp, kwh_value) \nVALUES ({{ $json.id }}, {{ $json.contract_id }}, '{{ $json.reading_timestamp }}', {{ $json.kwh_value }}) \nOVERRIDING SYSTEM VALUE\nON CONFLICT (id) DO NOTHING;",
+        "query": "INSERT INTO energy_readings (contract_id, reading_timestamp, kwh_value) \nVALUES ({{ $json.contract_id }}, '{{ $json.reading_timestamp }}', {{ $json.kwh_value }});",
         "options": {}
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        864,
-        -176
+        400,
+        384
       ],
-      "id": "d418d607-0825-44b2-8ffa-1ffe38575ce6",
+      "id": "da86862c-4a0e-4540-8131-e22c4fd5dce4",
       "name": "Execute a SQL query2",
       "credentials": {
         "postgres": {
-          "id": "JaIn9T0mUE25KXPZ",
+          "id": "6KuBRmFwh6DS4SRE",
           "name": "Postgres account"
         }
       }
@@ -167,10 +169,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        432,
-        -176
+        0,
+        384
       ],
-      "id": "0db0f7c8-1dab-4115-93ac-6c7859ffe67e",
+      "id": "f8893a5c-92eb-4354-be8c-7a5bec52b8f6",
       "name": "Leituras extract",
       "alwaysOutputData": true
     }
@@ -281,11 +283,11 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "e33e3e8a-2cc8-445a-8e73-93462090c583",
+  "versionId": "87832c3a-2900-4906-b89e-166e26b2f8fa",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "ca34ab5c748c6607c7ca4a826b44c5bdc1c48e8c3b10987890a1944eafa8eedf"
+    "instanceId": "80650967803774c65a3f7fb265b3c237d19d2e88114a39ff1321bb8d631d858d"
   },
-  "id": "KRhkHrLgFqopD0ll",
+  "id": "SbtqaXEKS7aHNQyD",
   "tags": []
 }
