@@ -1,5 +1,8 @@
 # 39a-consulting
 
+## Configurar variaveis de ambiente
+
+Basta renomear o arquivo .env.example para apenas .env
 
 ## Rodar docker
 
