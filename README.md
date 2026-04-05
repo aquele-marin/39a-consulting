@@ -55,3 +55,16 @@ Agora podemos apenas fazer a requisicao de GET para gerar o relatorio e coletar 
 ```bash
 curl -X GET http://localhost:5678/webhook-test/SUA_URL
 ```
+
+## Explicacao de identificacao de outliers
+
+Na estatistica, existe um método oficial para identificação de Outliers, chamado Intervalor Interquartil (IQR).
+
+
+Ele funciona assim:
+
+Encontra-se o Q1 (os 25% menores valores). Encontra-se o Q3 (os 25% maiores valores). A distância entre eles é o IQR. Qualquer coisa que esteja muito abaixo do Q1 ou muito acima do Q3 é considerado um outlier estatístico.
+
+![Box plot: Q1, mediana, Q3, IQR, whiskers, média e outliers](./assets/img.jpeg)
+
+Sua codificação foi feita em javascript no próprio n8n.
