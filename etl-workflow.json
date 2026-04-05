@@ -1,0 +1,291 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "9517cccb-1c58-4370-b532-345227826eca",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "42f80757-4283-444a-afc7-5babb5c598ab",
+      "name": "Webhook",
+      "webhookId": "9517cccb-1c58-4370-b532-345227826eca"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.compression",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "e06eb5b0-c3a1-4a43-b59d-df04f3232a7e",
+      "name": "Decompression",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        656,
+        0
+      ],
+      "id": "e7483d17-6077-4596-9786-b01d51c4fbbe",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO customers (id, name) \nVALUES ({{ $json.id }}, '{{ $json.name }}') \nOVERRIDING SYSTEM VALUE\nON CONFLICT (id) DO NOTHING;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        864,
+        0
+      ],
+      "id": "0a6f1104-7ca1-41b0-9fdd-d5aa7be5dffa",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "JaIn9T0mUE25KXPZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Procura o item que contém o arquivo clientes.csv\nconst items = Object.entries($input.first().binary)\nlet clientesItem = {}\n\nfor (const [_, value] of items) {\n  if (value.fileName === \"clientes.csv\") {\n    clientesItem = value\n    break;\n  }\n}\n\nreturn [clientesItem];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        432,
+        0
+      ],
+      "id": "6213c7a0-8c24-4450-8b81-1d755e2e58b4",
+      "name": "Clientes extract",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Procura o item que contém o arquivo clientes.csv\nconst contratosItem = $input.all().find(item => item.binary.data.fileName === 'contratos.csv');\nreturn [contratosItem];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        432,
+        208
+      ],
+      "id": "e20835c8-57e1-4349-b225-7d1f023a9cc1",
+      "name": "Contratos extract",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        192
+      ],
+      "id": "12068cc3-149b-460f-b542-d04698f75121",
+      "name": "Extract from File1"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO contracts (id, customer_id, start_date, is_active) \nVALUES ({{ $json.id }}, {{ $json.customer_id }}, '{{ $json.start_date }}', {{ $json.is_active }}) \nOVERRIDING SYSTEM VALUE\nON CONFLICT (id) DO NOTHING;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        880,
+        192
+      ],
+      "id": "ba53bc78-5616-44f5-ac8f-701ec68e2d41",
+      "name": "Execute a SQL query1",
+      "credentials": {
+        "postgres": {
+          "id": "JaIn9T0mUE25KXPZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "binaryPropertyName": "={{ $input.item.json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        656,
+        -176
+      ],
+      "id": "0a99df94-46fe-48dd-ad06-fc4b8e0873c8",
+      "name": "Extract from File2"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO energy_readings (id, contract_id, reading_timestamp, kwh_value) \nVALUES ({{ $json.id }}, {{ $json.contract_id }}, '{{ $json.reading_timestamp }}', {{ $json.kwh_value }}) \nOVERRIDING SYSTEM VALUE\nON CONFLICT (id) DO NOTHING;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        864,
+        -176
+      ],
+      "id": "d418d607-0825-44b2-8ffa-1ffe38575ce6",
+      "name": "Execute a SQL query2",
+      "credentials": {
+        "postgres": {
+          "id": "JaIn9T0mUE25KXPZ",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Procura o item que contém o arquivo clientes.csv\nconst items = Object.entries($input.first().binary)\nlet leiturasItem = {}\n\nfor (const [_, value] of items) {\n  if (value.fileName === \"leituras.csv\") {\n    leiturasItem = value\n    break;\n  }\n}\n\nreturn [leiturasItem];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        432,
+        -176
+      ],
+      "id": "0db0f7c8-1dab-4115-93ac-6c7859ffe67e",
+      "name": "Leituras extract",
+      "alwaysOutputData": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Decompression",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decompression": {
+      "main": [
+        [
+          {
+            "node": "Clientes extract",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Contratos extract",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Leituras extract",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clientes extract": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File1": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contratos extract": {
+      "main": [
+        [
+          {
+            "node": "Extract from File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File2": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leituras extract": {
+      "main": [
+        [
+          {
+            "node": "Extract from File2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "e33e3e8a-2cc8-445a-8e73-93462090c583",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca34ab5c748c6607c7ca4a826b44c5bdc1c48e8c3b10987890a1944eafa8eedf"
+  },
+  "id": "KRhkHrLgFqopD0ll",
+  "tags": []
+}

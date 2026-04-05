@@ -1,0 +1,5 @@
+id,customer_id,start_date,is_active
+5,4,2023-01-15,true
+6,5,2022-05-10,false
+7,5,2023-11-01,true
+8,6,2024-02-20,true
