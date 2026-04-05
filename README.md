@@ -58,7 +58,7 @@ curl -X GET http://localhost:5678/webhook-test/SUA_URL
 
 ## Explicacao de identificacao de outliers
 
-Na estatistica, existe um método oficial para identificação de Outliers, chamado Intervalor Interquartil (IQR).
+Na estatistica, existe um método oficial para identificação de Outliers, chamado Intervalo Interquartil (IQR).
 
 
 Ele funciona assim:
@@ -66,5 +66,11 @@ Ele funciona assim:
 Encontra-se o Q1 (os 25% menores valores). Encontra-se o Q3 (os 25% maiores valores). A distância entre eles é o IQR. Qualquer coisa que esteja muito abaixo do Q1 ou muito acima do Q3 é considerado um outlier estatístico.
 
 ![Box plot: Q1, mediana, Q3, IQR, whiskers, média e outliers](./assets/img.jpeg)
+
+Definimos alguns limites que estabelecem o que foge muito do IQR, no código usamos (Q3 - Q1) * 1.5 como positivo para limite superior e negativo para limite inferior.
+Ou seja:
+
+- Limite inferior = q1 - (Q3 - Q1)*1.5
+- Limite superior = q3 + (Q3 - Q1)*1.5
 
 Sua codificação foi feita em javascript no próprio n8n.
